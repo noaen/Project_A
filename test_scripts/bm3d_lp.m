@@ -30,10 +30,11 @@ for i = 1:floor((n+1)/2)
 end
 
 % generating top 4 levels with bm3d on level from HR pyramid
+pyr_merged_bm3d = pyr_merged;
 for i = 0:floor((n+1)/2)
     [PSNR, y_est] = BM3D(originalIm, p_hr{n+1-i}, 70, 'np',0);
-    pyr_merged{n+1-i} = y_est;
-    xr = lpr(pyr_merged, pfilt);
+    pyr_merged_bm3d{n+1-i} = y_est;
+    xr = lpr(pyr_merged_bm3d, pfilt);
 %     figure()
 %     subplot(1,2,1)
 %     imshow(p_hr{i})
@@ -49,11 +50,12 @@ for i = 0:floor((n+1)/2)
 
 end
 
+pyr_merged_bm3d_tweaked = pyr_merged;
 % generating top 4 levels with bm3d on level from HR pyramid
 for i = 0:floor((n+1)/2)
     [PSNR, y_est,~] = BM3DTweaked(originalIm,p_hr{n+1-i},single(p_lr{n+1-i}), 70, 'np',0);
-    pyr_merged{n+1-i} = y_est;
-    xr = lpr(pyr_merged, pfilt);
+    pyr_merged_bm3d_tweaked{n+1-i} = y_est;
+    xr = lpr(pyr_merged_bm3d_tweaked, pfilt);
     figure()
     imshow(xr)
     title(sprintf('top 4 levels from HR, bm3d_tweaked on first %.0f levels, 4 bottoms levels from LR',i+1));

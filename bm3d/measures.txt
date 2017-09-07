@@ -1,0 +1,12 @@
+
+************
+-sigma           = 0
+-PSNR_basic      = inf
+-RMSE_basic      = 0
+-PSNR            = -nan
+-RMSE            = -nan
+
+-PSNR_basic_bias = inf
+-RMSE_basic_bias = 0
+-PSNR_bias       = -nan
+-RMSE_bias       = -nan

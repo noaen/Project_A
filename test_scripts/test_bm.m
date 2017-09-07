@@ -8,10 +8,10 @@ names_list = {'high_snr_high_res', 'high_snr_low_res', 'low_snr_high_res', ...
     'lr_lvl_4', 'lr_lvl_5', 'lr_lvl_6', 'lr_lvl_7'};
 idx = 173565;
 for i = 1:length(names_list)
-    img = imread(strcat('../Data/csvs/', names_list{i}, '.png'));
+    img = imread(strcat('../Data/csv_files/', names_list{i}, '.png'));
     img_size = size(img);
-    [fig1, fig2] = draw_bm(strcat('../Data/csvs/patch_', names_list{i},'.csv'),...
+    [fig1, fig2] = draw_bm(strcat('../Data/csv_files/patch_', names_list{i},'.csv'),...
         img_csv, img_size, mod(idx,544), ceil(idx/544),8);
-    saveas(fig1,strcat('../Data/BM_outputs/',names_list{i},'_BM'));
-    saveas(fig2,strcat('../Data/BM_outputs/',names_list{i},'_blocks'));
+    saveas(fig1,strcat('../Data/bm_figures/',names_list{i},'_BM'));
+    saveas(fig2,strcat('../Data/bm_figures/',names_list{i},'_blocks'));
 end

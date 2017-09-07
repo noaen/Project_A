@@ -105,6 +105,7 @@ int run_bm3d(
     if (img_denoised.size() != img_noisy.size())
         img_denoised.resize(img_noisy.size());
 
+
     //! Transformation to YUV color space
     if (color_space_transform(img_noisy, color_space, width, height, chnls, true)
         != EXIT_SUCCESS) return EXIT_FAILURE;
@@ -172,44 +173,44 @@ int run_bm3d(
                 for (unsigned j = 0; j < width; j++, dc++)
                     img_basic[dc] = img_sym_basic[dc_b + i * w_b + j];
         }
-        char* filename2 = "img_for_BM_2.png";
-        save_image(filename2, img_basic, width, height, chnls);
-        cout << "done." << endl;
-        img_basic = img_blurred;// might need to do this assigment after the boundries correction.
-        symetrize(img_basic, img_sym_basic, width, height, chnls, nHard);
-
-        //! Allocating Plan for FFTW process
-        if (tau_2D_wien == DCT)
-        {
-            const unsigned nb_cols = ind_size(w_b - kWien + 1, nWien, pWien);
-            allocate_plan_2d(&plan_2d_for_1[0], kWien, FFTW_REDFT10,
-                                                        w_b * (2 * nWien + 1) * chnls);
-            allocate_plan_2d(&plan_2d_for_2[0], kWien, FFTW_REDFT10,
-                                                        w_b * pWien * chnls);
-            allocate_plan_2d(&plan_2d_inv  [0], kWien, FFTW_REDFT01,
-                                                        NWien * nb_cols * chnls);
-        }
-
-
-
-        //! Denoising, 2nd Step
-        cout << "step 2...";
-        bm3d_2nd_step(sigma, img_sym_noisy, img_sym_basic, img_sym_denoised,
-                w_b, h_b, chnls, nWien, kWien, NWien, pWien, useSD_w, color_space,
-                tau_2D_wien, &plan_2d_for_1[0], &plan_2d_for_2[0], &plan_2d_inv[0]);
-        cout << "done." << endl;
-
-
-
-        //! Obtention of img_denoised
-        for (unsigned c = 0; c < chnls; c++)
-        {
-            const unsigned dc_b = c * w_b * h_b + nWien * w_b + nWien;
-            unsigned dc = c * width * height;
-            for (unsigned i = 0; i < height; i++)
-                for (unsigned j = 0; j < width; j++, dc++)
-                    img_denoised[dc] = img_sym_denoised[dc_b + i * w_b + j];
-        }
+//        char* filename2 = "img_for_BM_2.png";
+//        save_image(filename2, img_basic, width, height, chnls);
+//        cout << "done." << endl;
+//        img_basic = img_blurred;// might need to do this assigment after the boundries correction.
+//        symetrize(img_basic, img_sym_basic, width, height, chnls, nHard);
+//
+//        //! Allocating Plan for FFTW process
+//        if (tau_2D_wien == DCT)
+//        {
+//            const unsigned nb_cols = ind_size(w_b - kWien + 1, nWien, pWien);
+//            allocate_plan_2d(&plan_2d_for_1[0], kWien, FFTW_REDFT10,
+//                                                        w_b * (2 * nWien + 1) * chnls);
+//            allocate_plan_2d(&plan_2d_for_2[0], kWien, FFTW_REDFT10,
+//                                                        w_b * pWien * chnls);
+//            allocate_plan_2d(&plan_2d_inv  [0], kWien, FFTW_REDFT01,
+//                                                        NWien * nb_cols * chnls);
+//        }
+//
+//
+//
+//        //! Denoising, 2nd Step
+//        cout << "step 2...";
+//        bm3d_2nd_step(sigma, img_sym_noisy, img_sym_basic, img_sym_denoised,
+//                w_b, h_b, chnls, nWien, kWien, NWien, pWien, useSD_w, color_space,
+//                tau_2D_wien, &plan_2d_for_1[0], &plan_2d_for_2[0], &plan_2d_inv[0]);
+//        cout << "done." << endl;
+//
+//
+//
+//        //! Obtention of img_denoised
+//        for (unsigned c = 0; c < chnls; c++)
+//        {
+//            const unsigned dc_b = c * w_b * h_b + nWien * w_b + nWien;
+//            unsigned dc = c * width * height;
+//            for (unsigned i = 0; i < height; i++)
+//                for (unsigned j = 0; j < width; j++, dc++)
+//                    img_denoised[dc] = img_sym_denoised[dc_b + i * w_b + j];
+//        }
     }
     //! If more than 1 threads are used
     else

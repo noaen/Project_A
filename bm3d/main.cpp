@@ -47,11 +47,11 @@ int main(int argc, char **argv)
 	vector<float> img_diff_bias;
     unsigned width, height, chnls;
 
-    //! Load image
-	if(load_image(argv[1], img, &width, &height, &chnls) != EXIT_SUCCESS)
-        return EXIT_FAILURE;
 	//Reading blurred image, our addition. Note argument #15, might be different
 	if(load_image(argv[15], img_blurred, &width, &height, &chnls) != EXIT_SUCCESS)
+        return EXIT_FAILURE;
+    //! Load image
+	if(load_image(argv[1], img, &width, &height, &chnls) != EXIT_SUCCESS)
         return EXIT_FAILURE;
 
 
@@ -107,6 +107,7 @@ int main(int argc, char **argv)
 	cout << endl << "Add noise [sigma = " << fSigma << "] ...";
 	add_noise(img, img_noisy, fSigma);
     cout << "done." << endl;
+
 
     //! Denoising,  note that img = img noised in our application
     if (run_bm3d(fSigma, img_noisy, img_basic, img_denoised, width, height, chnls,

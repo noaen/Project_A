@@ -10,6 +10,7 @@ idx = 173565;
 for i = 1:length(names_list)
     img = imread(strcat('../Data/csv_files/', names_list{i}, '.png'));
     img_size = size(img);
+    img_csv = imread(strcat('../Data/csv_files/img_', names_list{i}, '.csv'));
     [fig1, fig2] = draw_bm(strcat('../Data/csv_files/patch_', names_list{i},'.csv'),...
         img_csv, img_size, mod(idx,544), ceil(idx/544),8);
     saveas(fig1,strcat('../Data/bm_figures/',names_list{i},'_BM'));

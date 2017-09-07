@@ -1,4 +1,4 @@
-function draw_bm(filename,img_csv,img_size,row,col,patch_size)
+function [fig1, fig2] = draw_bm(filename,img_csv,img_size,row,col,patch_size)
 % This function receives an image, a file name containing CSV data of block  
 % matching a subscript(x,y) of the picture.
 
@@ -22,12 +22,12 @@ patch_table
 
 % img_re = img';
 
-figure();
+fig1 = figure();
 img_bm = insertShape(img', 'Rectangle',M);
 img_bm = insertShape(img_bm, 'Rectangle',[pcol,prow,patch_size,patch_size],'Color','red');
 imshow(img_bm)
 
-figure()
+fig2 = figure()
 
 for i = 1:length(patch_table)
     subplot(2,length(patch_table)/2,i)

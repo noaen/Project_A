@@ -1,4 +1,3 @@
-%% loading images
 clc; close all; clear;
 addpath(genpath([ pwd '\..\' ]));
 im = load_untouch_nii('..\mri_images\high_snr_registered.nii');
@@ -18,9 +17,9 @@ imwrite(originalIm,'..\Data\png_images\high_snr_high_res.png', 'png');
 imwrite(lr, '..\Data\png_images\high_snr_low_res.png', 'png');
 imwrite(hr, '..\Data\png_images\low_snr_high_res.png', 'png');
 
-for i = 1:7
+for i = 4:7
     str_lr = sprintf('lr_lvl_%.0f',i);
     str_hr = sprintf('hr_lvl_%.0f',i);
-    imwrite(lr, ['..\Data\png_images\' str_lr '.png'], 'png');
-    imwrite(hr, ['..\Data\png_images\' str_hr '.png'], 'png');
+    imwrite(y_lr{i}, ['..\Data\png_images\' str_lr '.png'], 'png');
+    imwrite(y_hr{i}, ['..\Data\png_images\' str_hr '.png'], 'png');
 end

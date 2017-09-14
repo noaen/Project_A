@@ -6,9 +6,12 @@ addpath(genpath([ pwd '\..\' ]));
 names_list = {'high_snr_high_res', 'high_snr_low_res', 'low_snr_high_res', ...
     'hr_lvl_4', 'lr_lvl_4', 'hr_lvl_5', ...
     'lr_lvl_5', 'hr_lvl_6','lr_lvl_6', 'hr_lvl_7', 'lr_lvl_7'};
-idx_list = [173565, 173565, 173565, 1443, 1443, 5882, 5882, 14601, 14601, 14601, 14601];
+idx_list = [173565, 173565, 173565, 1443, 1443,v
+idx = 173565;
 for i = 1:length(names_list)
-    idx = idx_list(i);
+    if i > 3
+        idx = 14601;
+    end
     img = imread(strcat('../Data/csv_files/', names_list{i}, '.png'));
     img_size = size(img);
     img_csv = load(strcat('../Data/csv_files/img_', names_list{i}, '.csv'));

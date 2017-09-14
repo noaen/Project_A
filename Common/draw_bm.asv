@@ -30,14 +30,14 @@ title(sprintf(your_name),'Interpreter','None');
 drawnow;
 
 fig2 = figure();
-suptitle(your_name)
+haxes = axes(fig2);
 % suptitle(your_name);
 for i = 1:length(patch_table)
     subplot(2,length(patch_table)/2,i)
     imshow(imcrop(img',M(i,:)))
     title(sprintf('# %d',i))
 end
-
+title(haxes,sprintf(your_name),'Interpreter','None');
 
 
 end

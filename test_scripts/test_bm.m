@@ -17,3 +17,11 @@ for i = 1:length(names_list)
     saveas(fig1,strcat('../Data/bm_figures/',names_list{i},'_BM'));
     saveas(fig2,strcat('../Data/bm_figures/',names_list{i},'_blocks'));
 end
+
+idx = 173565;
+img_csv = load('../Data/csv_files/img_high_snr_low_res.csv');
+img = imread('../Data/csv_files/high_snr_low_res.png');
+[fig1, fig2] = draw_bm('../Data/csv_files/patch_high_snr_low_res.csv',...
+img_csv, img_size, mod(idx,size(img,1)), ceil(idx/size(img,1)),8, 'high res img, low res BM');
+saveas(fig1,'../Data/bm_figures/high_res_img_low_res_bm_BM');
+saveas(fig2,'../Data/bm_figures/high_res_img_low_res_bm_blocks');

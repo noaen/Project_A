@@ -1,6 +1,5 @@
-function patch_table = get_patchs(filename,lineind)
+function patch_table = get_patchs(C,lineind)
 
-C = textread(filename, '%s','delimiter', '\n');
 s = C{lineind};
 patch_table = sscanf(s,strcat('%f',','));
 

@@ -5,8 +5,22 @@ function [fig1, fig2] = draw_bm(filename,img_csv,img_size,row,col,patch_size, yo
 img = uint8(reshape(img_csv,flip(img_size)));
 % figure();
 % imshow(img');
+C = textread(filename, '%s','delimiter', '\n');
 lineInd = sub2ind(size(img),row,col);
-patch_table = get_patchs(filename,lineInd);
+patch_table = get_patchs(C,lineInd);
+
+% in a 3x3 grid there is one block center that has BM, if current selection
+% is without BM, search for nearest one.
+for i = -1:1
+    for j = -1:1
+        if (~isempty(patch_table))
+            break
+        end
+        lineInd = sub2ind(size(img),row+i,col+j);
+        patch_table = get_patchs(C,lineInd);
+    end
+end
+
 
 M = zeros(length(patch_table),4); %rectangular matrix 
 for i = 1:length(patch_table)

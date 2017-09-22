@@ -44,7 +44,7 @@ title(sprintf(your_name),'Interpreter','None');
 drawnow;
 
 fig2 = figure();
-suptitle(your_name)
+suptitle(strrep(your_name,'_','\_'))
 % suptitle(your_name);
 for i = 1:length(patch_table)
     subplot(2,length(patch_table)/2,i)

@@ -2,24 +2,29 @@
 %It draws the BM on the images
 
 clc; close all;
-folder = 'sigma_noise40-sigma_blur15-kernel_size5/';
+folder_list = {'sigma_noise40-sigma_blur3-kernel_size5/',...
+    'sigma_noise40-sigma_blur5-kernel_size5/',...
+    'sigma_noise40-sigma_blur15-kernel_size5/',...
+    'sigma_noise40-sigma_blur5-kernel_size9/'};
 addpath(genpath([ pwd '\..\' ]));
 names_list = {'high_snr_high_res', 'high_snr_low_res', 'low_snr_high_res'};
 %     'hr_lvl_4', 'lr_lvl_4', 'hr_lvl_5', ...
 %     'lr_lvl_5', 'hr_lvl_6','lr_lvl_6', 'hr_lvl_7', 'lr_lvl_7'};
 x = 180;
 y = 256;
-img = imread(strcat('../Data/csv_files/',folder, names_list{1}, '.png'));
-img_csv = load(strcat('../Data/csv_files/',folder,'img_', names_list{1}, '.csv'));
+img = imread(strcat('../Data/csv_files/',folder_list{1}, names_list{1}, '.png'));
+img_csv = load(strcat('../Data/csv_files/',folder_list{1},'img_', names_list{1}, '.csv'));
 
+for j = 1:length(folder_list)
 for i = 1:length(names_list)
 %     img = imread(strcat('../Data/csv_files/',folder, names_list{i}, '.png'));
     img_size = size(img);
 %     img_csv = load(strcat('../Data/csv_files/',folder,'img_', names_list{i}, '.csv'));
-    [fig1, fig2] = draw_bm(strcat('../Data/csv_files/',folder,'patch_', names_list{i},'.csv'),...
+    [fig1, fig2] = draw_bm(strcat('../Data/csv_files/',folder_list{j},'patch_', names_list{i},'.csv'),...
     img_csv, img_size, x, y,8, names_list{i});
-    saveas(fig1,strcat('../Data/bm_figures/',folder,names_list{i},'_BM'));
-    saveas(fig2,strcat('../Data/bm_figures/',folder,names_list{i},'_blocks'));
+    saveas(fig1,strcat('../Data/bm_figures/',folder_list{j},names_list{i},'_BM'));
+    saveas(fig2,strcat('../Data/bm_figures/',folder_list{j},names_list{i},'_blocks'));
+end
 end
 
 % idx = 173565;

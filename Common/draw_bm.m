@@ -35,10 +35,11 @@ patch_table
 [pcol,prow] = ind2sub(size(img),lineInd); 
 
 % img_re = img';
+ref_block = [pcol,prow,patch_size,patch_size];
 
 fig1 = figure();
 img_bm = insertShape(img', 'Rectangle',M);
-img_bm = insertShape(img_bm, 'Rectangle',[pcol,prow,patch_size,patch_size],'Color','red');
+img_bm = insertShape(img_bm, 'Rectangle',ref_block,'Color','red');
 imshow(img_bm)
 title(sprintf(your_name),'Interpreter','None');
 drawnow;
@@ -46,10 +47,16 @@ drawnow;
 fig2 = figure();
 suptitle(strrep(your_name,'_','\_'))
 % suptitle(your_name);
-for i = 1:length(patch_table)
-    subplot(2,length(patch_table)/2,i)
-    imshow(imcrop(img',M(i,:)))
-    title(sprintf('# %d',i))
+subplot(2,length(patch_table)/2,1)
+ref_img = imcrop(img',ref_block);
+imshow(ref_img,[])
+title(sprintf('ref block'))
+for i = 1:length(patch_table)-1
+    block_img = imcrop(img',M(i,:));
+    dist = norm(double(ref_img(:))-double(block_img(:)),2);
+    subplot(2,length(patch_table)/2,i+1)
+    imshow(block_img,[])
+    title(sprintf(' d = %.1f',dist))
 end
 
 

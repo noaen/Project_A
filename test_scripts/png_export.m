@@ -13,6 +13,7 @@ n = 7;
 
 y_lr = lpd(lr, pfilt, n);
 y_hr = lpd(hr,pfilt,n);
+y_original = lpd(originalIm, pfilt, n);
 
 [h,g] = pfilters(pfilt);
 
@@ -28,17 +29,22 @@ for i = 4:7
     %expanding the levels
     p = y_lr{i};
     q = y_hr{i};
+    r = y_original{i};
     for j = 1:7-i+1
         for k = 1:ndims(p)
             p = upfilt(p,g,k,'sym',adjust);
             q = upfilt(q,g,k,'sym',adjust);
+            r = upfilt(r,g,k,'sym',adjust);
         end
     end
-    %saving the levels in ong format
+    %saving the levels in png format
     str_lr = sprintf('lr_lvl_%.0f',i);
     str_hr = sprintf('hr_lvl_%.0f',i);
+    str_orig = sprintf('orig_lvl_%.0f',i);
     p = rescale(p);
     q = rescale(q);
+    r = rescale(r);
     imwrite(p, ['..\Data\png_images\' str_lr '.png'], 'png');
-    imwrite(q, ['..\Data\png_images\' str_hr '.png'], 'png');
+    imwrite(q, ['..\Data\png_images\' str_hr 'hr.png'], 'png');
+    imwrite(r, ['..\Data\png_images\' str_orig '.png'], 'png');
 end

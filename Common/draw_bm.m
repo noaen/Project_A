@@ -45,20 +45,24 @@ title(sprintf(your_name),'Interpreter','None');
 drawnow;
 
 fig2 = figure();
-suptitle(strrep(your_name,'_','\_'))
+
 % suptitle(your_name);
 subplot(2,length(patch_table)/2,1)
 ref_img = imcrop(img',ref_block);
 imshow(ref_img,[])
 title(sprintf('ref block'))
+dist_list = zeros(length(length(patch_table)-1));
 for i = 1:length(patch_table)-1
     block_img = imcrop(img',M(i,:));
     dist = norm(double(ref_img(:))-double(block_img(:)),2);
+    dist_list(i) = dist;
     subplot(2,length(patch_table)/2,i+1)
     imshow(block_img,[])
     title(sprintf(' d = %.1f',dist))
 end
-
+top_title = strrep(your_name,'_','\_');
+top_title = [top_title sprintf(' avg_d = %.1f',mean(dist_list)) sprintf(' var_d = %.1f',var(dist_list))];
+suptitle(top_title)
 
 
 end

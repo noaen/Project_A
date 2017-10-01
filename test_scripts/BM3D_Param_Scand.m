@@ -2,8 +2,8 @@
 
 %% loading images
 addpath(genpath(pwd));
-% low_snr =load_untouch_nii('images\Natural\MRI\low_snr.nii');
-% high_snr = load_untouch_nii('images\Natural\MRI\high_snr_registered.nii');
+ low_snr =load_untouch_nii('..\mri_images\low_snr.nii');
+ high_snr = load_untouch_nii('..\mri_images\high_snr_registered.nii');
 high_snr_high_res = load_untouch_nii('..\mri_images\high_snr.nii');
 
 %% Taking test image from HH (High res,High SNR)
@@ -11,9 +11,38 @@ z_mri = rescale(im2double(high_snr_high_res.img(:,:,30)));
 
 %% defining scan params, noising, blurring kernel (sigma & size)
 sigma = [0:5:70]; %noise sigma
-sigma_rob = [30,70]; % sigma for robustness test
+sigma_rob = [10,30,50,70]; % sigma for robustness test
 sigma_blur = [0 ,1:1:10]; % sigma of gaussian kerenl
-ker_size = [5,9,11];
+ker_size = 3;
+
+
+%% Poisson
+PSNR_BM3D_pois = zeros(length(ker_size),length(sigma_blur),length(sigma));
+PSNR_BM3DTweak_pois = zeros(length(ker_size),length(sigma_blur),length(sigma));
+
+for l = 1:numel(sigma)
+    z_n_mri = im2double(imnoise(uint8(z_mri*255),'poisson'));
+    [PSNR, z_est_orig] = BM3D(z_mri, z_n_mri, sigma(l),'np',0 );
+    filename = sprintf('../BM3DOutputPics/Pois/sigma%0.1f_BM3D.jpg' , sigma(l));
+    imwrite(z_est_orig,filename,'jpg');
+    for i =1:numel(ker_size)
+        for j = 1:numel(sigma_blur)
+            blur_h = fspecial('gaussian',ker_size(i),sigma_blur(j)+eps);
+            z_b_mri = rescale(imfilter(z_mri,blur_h,'circ','conv'));
+
+            [PSNRtweak, z_est,z_hat] = BM3DTweaked(z_mri, z_n_mri,single(z_b_mri), sigma(l),'np',0);
+         
+            filename = sprintf('../BM3DOutputPics/Pois/KerSize%0.1f_sigma%0.1f_SigBlur%0.1f_BM3DTweak.jpg'...
+                               ,ker_size(i), sigma(l),sigma_blur(j) );
+            imwrite(z_est,filename,'jpg');
+
+
+            PSNR_BM3D_pois(i,j,l) = PSNR;
+            PSNR_BM3DTweak_pois(i,j,l) = PSNRtweak;
+        end
+    end
+end
+
 
 %% running script
 % z_c_b_mri = zeros([size(z_mri),3]);
@@ -88,8 +117,8 @@ for l = 1:numel(sigma)
 end
 
 %% Noise Estimation robustness
-PSNR_BM3D_rob = zeros(length(ker_size),length(sigma_blur),length(sigma));
-PSNR_BM3DTweak_rob = zeros(length(ker_size),length(sigma_blur),length(sigma));
+PSNR_BM3D_rob = zeros(length(sigma_rob),length(ker_size),length(sigma_blur),length(sigma));
+PSNR_BM3DTweak_rob = zeros(length(sigma_rob),length(ker_size),length(sigma_blur),length(sigma));
 % PSNR_CBM3DOrig_rob = zeros(length(sigma));
 % PSNR_CBM3D_rob = zeros(length(ker_size),length(sigma_blur),length(sigma));
 % PSNR_CBM3DTweak_rob = zeros(length(ker_size),length(sigma_blur),length(sigma));
@@ -134,8 +163,8 @@ for m = 1:numel(sigma_rob)
 %                 imwrite(z_ctweak_est(:,:,1),filename,'jpg');
 
 
-                PSNR_BM3D_rob(i,j,l) = PSNR;
-                PSNR_BM3DTweak_rob(i,j,l) = PSNRtweak;
+                PSNR_BM3D_rob(m,i,j,l) = PSNR;
+                PSNR_BM3DTweak_rob(m,i,j,l) = PSNRtweak;
 %                 PSNR_CBM3D_rob(i,j,l) =PSNRColor; 
 %                 PSNR_CBM3DTweak_rob(i,j,l) =PSNRColorTweak ;
             end
@@ -188,7 +217,14 @@ hold on
 surf(sigma_blur,sigma,reshape(PSNR_BM3D(1,:,:),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])')
 
 figure
-surf(sigma_blur,sigma,reshape(PSNR_BM3DTweak_rob(2,:,:),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])'+1)
+surf(sigma_blur,sigma(2:end),reshape(PSNR_BM3DTweak_rob(1,1,:,2:end),[length(sigma_blur),length(sigma)-1])',ones([length(sigma_blur),length(sigma)-1])'+1)
 hold on
-surf(sigma_blur,sigma,reshape(PSNR_BM3D_rob(2,:,:),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])')
+surf(sigma_blur,sigma(2:end),reshape(PSNR_BM3D_rob(1,1,:,2:end),[length(sigma_blur),length(sigma)-1])',ones([length(sigma_blur),length(sigma)-1])')
+
+
+figure
+surf(sigma_blur,sigma,reshape(PSNR_BM3DTweak_pois(1,:,:),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])'+1)
+hold on
+surf(sigma_blur,sigma,reshape(PSNR_BM3D_pois(1,:,:),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])')
+
 

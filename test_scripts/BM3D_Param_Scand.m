@@ -10,12 +10,64 @@ high_snr_high_res = load_untouch_nii('..\mri_images\high_snr.nii');
 z_mri = rescale(im2double(high_snr_high_res.img(:,:,30)));
 
 %% defining scan params, noising, blurring kernel (sigma & size)
-sigma = [0:5:70]; %noise sigma
+sigma = [5:5:70]; %noise sigma
 sigma_rob = [10,30,50,70]; % sigma for robustness test
 sigma_blur = [0 ,1:1:10]; % sigma of gaussian kerenl
-ker_size = 3;
+ker_size = [3 5 9];
+R = round(sqrt(linspace(0.05,0.75,8)*max(size(z_mri))^2/pi)); %linear precentage 
+% of FFT coeffceints taken, 0.75 is max % taken to prevent
+% boundray condition o f square and circle intersecting
+
+%% fusion
+PSNR_BM3D_FFT = zeros(length(ker_size),length(sigma_blur),length(sigma),length(R));
+
+for l = 1:numel(sigma)
+    z_n_mri = z_mri + (sigma(l)/255)*randn(size(z_mri)); 
+    for i =1:numel(ker_size)
+        for j = 1:numel(sigma_blur)
+            blur_h = fspecial('gaussian',ker_size(i),sigma_blur(j)+eps);
+            z_b_mri = imfilter(z_mri,blur_h,'circ','conv');
+            for r = 1:numel(R)
+
+                z_fused = imfuseFFT(z_b_mri,z_n_mri,R(r));
+                [PSNR, z_est] = BM3D(z_mri, z_fused, sigma(l),'np',0 );
+
+                filename = sprintf('../BM3DOutputPics/FFT/KerSize%0.1f_sigma%0.1f_SigBlur%0.1f_R%0.1f_BM3DFFT.jpg'...
+                                   ,ker_size(i), sigma(l),sigma_blur(j),R(r));
+                imwrite(z_est,filename,'jpg');
+
+                PSNR_BM3D_FFT(i,j,l,r) = PSNR;
+            end
+        end
+    end
+end
 
 
+%% fusion rob
+PSNR_BM3D_FFT_rob = zeros(length(sigma_rob),length(ker_size),length(sigma_blur),length(sigma),length(R));
+
+for d = 1:numel(sigma_rob)
+    z_n_mri = z_mri + (sigma_rob(d)/255)*randn(size(z_mri));
+    for l = 1:numel(sigma)
+        for i =1:numel(ker_size)
+            for j = 1:numel(sigma_blur)
+                blur_h = fspecial('gaussian',ker_size(i),sigma_blur(j)+eps);
+                z_b_mri = imfilter(z_mri,blur_h,'circ','conv');
+                for r = 1:numel(R)
+
+                    z_fused = imfuseFFT(z_b_mri,z_n_mri,R(r));
+                    [PSNR, z_est] = BM3D(z_mri, z_fused, sigma(l),'np',0 );
+
+                    filename = sprintf('../BM3DOutputPics/FFT/rob/SigRob%0.1f_KerSize%0.1f_sigma%0.1f_SigBlur%0.1f_R%0.1f_BM3DFFT.jpg'...
+                                       ,sigma_rob(d),ker_size(i), sigma(l),sigma_blur(j),R(r));
+                    imwrite(z_est,filename,'jpg');
+
+                    PSNR_BM3D_FFT_rob(d,i,j,l,r) = PSNR;
+                end
+            end
+        end
+    end
+end
 %% Poisson
 PSNR_BM3D_pois = zeros(length(ker_size),length(sigma_blur),length(sigma));
 PSNR_BM3DTweak_pois = zeros(length(ker_size),length(sigma_blur),length(sigma));
@@ -215,6 +267,10 @@ figure
 surf(sigma_blur,sigma,reshape(PSNR_BM3DTweak(1,:,:),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])'+1)
 hold on
 surf(sigma_blur,sigma,reshape(PSNR_BM3D(1,:,:),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])')
+xlabel('blur sigma')
+ylabel('noise sigma')
+zlabel('PSNR')
+title('PSNR of BM3D and BM3D tweak for kernel size 5')
 
 figure
 surf(sigma_blur,sigma(2:end),reshape(PSNR_BM3DTweak_rob(1,1,:,2:end),[length(sigma_blur),length(sigma)-1])',ones([length(sigma_blur),length(sigma)-1])'+1)
@@ -227,4 +283,40 @@ surf(sigma_blur,sigma,reshape(PSNR_BM3DTweak_pois(1,:,:),[length(sigma_blur),len
 hold on
 surf(sigma_blur,sigma,reshape(PSNR_BM3D_pois(1,:,:),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])')
 
+figure
+surf(sigma_blur,sigma,reshape(PSNR_BM3D_FFT(1,:,:,1),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])')
+hold on
+surf(sigma_blur,sigma,reshape(PSNR_BM3D(1,:,2:end),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])'+1)
+hold on
+surf(sigma_blur,sigma,reshape(PSNR_BM3DTweak(1,:,2:end),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])'+2)
+xlabel('blur sigma')
+ylabel('noise sigma')
+zlabel('PSNR')
+legend('FFT 5%','BM3D','BM3D Tweak')
+title('PSNR of BM3D and BM3D FFT for kernel size 3')
 
+figure
+surf(sigma_blur,sigma(1:end),reshape(PSNR_BM3D_rob(2,1,:,2:end),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])')
+hold on
+surf(sigma_blur,sigma(1:end),reshape(PSNR_BM3DTweak_rob(2,1,:,2:end),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])'+1)
+hold on
+surf(sigma_blur,sigma(1:end),reshape(PSNR_BM3D_FFT_rob(2,1,:,:,2),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])'+2)
+hold on
+
+figure
+surf(sigma_blur,sigma(1:end),reshape(PSNR_BM3D_rob(2,1,:,2:end),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])')
+hold on
+surf(sigma_blur,sigma(1:end),reshape(PSNR_BM3DTweak_rob(2,1,:,2:end),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])'+1)
+hold on
+surf(sigma_blur,sigma,reshape(PSNR_BM3DTweak_rob2(2,2,:,:),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])'+4)
+hold on
+surf(sigma_blur,sigma(1:end),reshape(PSNR_BM3D_FFT_rob(2,2,:,:,1),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])'+2)
+hold on
+surf(sigma_blur,sigma(1:end),reshape(PSNR_BM3D_FFT_rob(2,2,:,:,2),[length(sigma_blur),length(sigma)])',ones([length(sigma_blur),length(sigma)])'+3)
+hold on
+
+xlabel('blur sigma')
+ylabel('noise sigma')
+zlabel('PSNR')
+title('PSNR of BM3D and BM3D tweak for kernel size 5')
+legend('BM3D','BM3D Tweak','Tweak2','FFT 5%','FFT 15%')

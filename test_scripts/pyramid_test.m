@@ -1,10 +1,11 @@
 %% loading images
-clc; close all; clear;
-addpath(genpath([ pwd '\..\' ]));
-im = load_untouch_nii('..\mri_images\high_snr_registered.nii');
-sigmaNoise = 70;
+% clc; close all; clear;
+% addpath(genpath([ pwd '\..\' ]));
+im = load_untouch_nii('..\mri_images\high_snr.nii');
+sigmaNoise = 40;
 sigmaBlur = 5;
-[originalIm, hr, lr] = image_prep(im,sigmaNoise, sigmaBlur); %getting a noised version of the original image
+KerSize = 5;
+[originalIm, hr, lr] = image_prep(im,sigmaNoise, sigmaBlur,KerSize); %getting a noised version of the original image
 
 
 %% generating pyramids

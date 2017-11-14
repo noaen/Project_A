@@ -1,4 +1,4 @@
-function [fig1, fig2] = draw_bm(filename,img_csv,img_size,row,col,patch_size, your_name)
+function [fig1, fig2,davg,dvar] = draw_bm(filename,img_csv,img_size,row,col,patch_size, your_name)
 % This function receives an image, a file name containing CSV data of block  
 % matching a subscript(x,y) of the picture.
 
@@ -63,6 +63,7 @@ end
 top_title = strrep(your_name,'_','\_');
 top_title = [top_title sprintf(' avg_d = %.1f',mean(dist_list)) sprintf(' var_d = %.1f',var(dist_list))];
 suptitle(top_title)
-
+davg = mean(dist_list);
+dvar = var(dist_list);
 
 end

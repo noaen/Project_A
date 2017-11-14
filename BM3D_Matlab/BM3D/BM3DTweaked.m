@@ -340,7 +340,7 @@ end
 %%%% Step 1. Produce the basic estimate by HT filtering
 %%%%
 tic;
-y_hat = bm3d_thr(z_blurred, hadper_trans_single_den, Nstep, N1, N2, lambda_thr2D,...
+y_hat = bm3d_thr(z, hadper_trans_single_den, Nstep, N1, N2, lambda_thr2D,...
 	lambda_thr3D, tau_match*N1*N1/(255*255), (Ns-1)/2, (sigma/255), thrToIncStep, single(Tfor), single(Tinv)', inverse_hadper_trans_single_den, single(thr_mask), Wwin2D, smallLN, stepFS );
 estimate_elapsed_time = toc;
 

@@ -41,7 +41,7 @@ for i = 0:floor((n+1)/2)
     filename = sprintf('top 4 levels from HR, bm3d on first %.0f levels, 4 bottoms levels from LR.jpg',i+1);
     imwrite(xr, ['..\Data\bm3d_lp_images\' filename], 'jpg');
     if i==0
-         [PSNR, final_est] = BM3D(originalIm, xr, 30, 'np',0);
+         [PSNR, final_est] = BM3D(originalIm, xr, 40, 'np',0);
          figure()
          imshow(final_est)
          title('BM3D on img. with denoised top level');
@@ -69,25 +69,34 @@ end
 
 tmp_pyr = p_lr;
 tmp_pyr{8} = p_hr{8};
-[~, top_level_bm3d] = BM3D(originalIm, tmp_pyr{8}, 70, 'np',0);
+[~, top_level_bm3d] = BM3D(originalIm, tmp_pyr{8}, 40, 'np',0);
 tmp_pyr{8} = top_level_bm3d;
+[~, top_level_bm3d] = BM3DTweaked(originalIm, tmp_pyr{8},single(p_lr{8}), 40, 'np',0);
 % tmp_pyr{7} = p_hr{7};
 % [~, scnd_level_bm3d] = BM3D(originalIm, tmp_pyr{7}, 70, 'np',0);
 xr = lpr(tmp_pyr, pfilt);
-[~, final_est] = BM3D(originalIm, xr, 20, 'np',0);
-[~,denoised_im] = BM3D(originalIm, hr, 70, 'np',0);
+psnr(xr,originalIm)
+tmp_pyr2 = tmp_pyr;
+tmp_pyr2{8} = top_level_bm3d;
+xr2 = lpr(tmp_pyr2, pfilt);
+psnr(xr2,originalIm)
+
+[psnr_final, final_est] = BM3D(originalIm, xr, 40, 'np',0);
+% [psnr_denoised,denoised_im] = BM3D(originalIm, hr, 40, 'np',0);
+[psnr_denoised,denoised_im] = BM3DTweaked(originalIm, hr,single(lr), 40, 'np',0);
+[~,rect] = imcrop(originalIm);
 figure()
 subplot(2,2,1)
-imshow(xr)
+imshow(imcrop(xr,rect))
 title('LR Pyramid, Top level HR with bm3d')
 subplot(2,2,2)
-imshow(final_est)
-title('after BM3D on final product')
+imshow(imcrop(xr2,rect))
+title('LR Pyramid, Top level HR with bm3dtweak')
 subplot(2,2,3)
-imshow(hr)
-title('original noisy image')
+imshow(imcrop(originalIm,rect))
+title('original image')
 subplot(2,2,4)
-imshow(denoised_im)
-title('original noisy img. denoised')
+imshow(imcrop(denoised_im,rect))
+title('BM3D Tweak')
 
 

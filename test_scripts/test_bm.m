@@ -8,14 +8,17 @@ folder_list = {'sigma_noise40-sigma_blur5-kernel_size5/'}%,...
 %     'sigma_noise40-sigma_blur5-kernel_size9/'};
 addpath(genpath([ pwd '\..\' ]));
 %names_list = {'high_snr_high_res', 'high_snr_low_res', 'low_snr_high_res'}
-orig_names_list = {'high_snr_high_res'};%{'orig_lvl_4', 'orig_lvl_5', 'orig_lvl_6','orig_lvl_7'};
-lr_names_list = {'high_snr_low_res'};%{'lr_lvl_4', 'lr_lvl_5', 'lr_lvl_6','lr_lvl_7'};
-hr_names_list = {'low_snr_high_res'};%{'hr_lvl_4', 'hr_lvl_5', 'hr_lvl_6','hr_lvl_7'};
+orig_names_list ={'orig_lvl_4', 'orig_lvl_5', 'orig_lvl_6','orig_lvl_7'}; %{'high_snr_high_res'};%
+lr_names_list = {'lr_lvl_4', 'lr_lvl_5', 'lr_lvl_6','lr_lvl_7'}; %{'high_snr_low_res'};%
+hr_names_list = {'hr_lvl_4', 'hr_lvl_5', 'hr_lvl_6','hr_lvl_7'}; %{'low_snr_high_res'};%
 
 % names_list = {'hr_lvl_4', 'lr_lvl_4', 'hr_lvl_5', ...
 %      'lr_lvl_5', 'hr_lvl_6','lr_lvl_6', 'hr_lvl_7', 'lr_lvl_7'};
-x = 172;
-y = 266;
+%detailed point: x = 172; y = 266;
+%smooth: x = 123; y = 167;
+%feature: 
+x = 189 ; 
+y = 120 ;
 % img = imread(strcat('../Data/csv_files/',folder_list{1}, names_list{i}, '.png'));
 % img_csv = load(strcat('../Data/csv_files/',folder_list{1},'img_', names_list{i}, '.csv'));
 distance_stats_lr = zeros(2,2);

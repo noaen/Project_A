@@ -4,18 +4,22 @@
 clc; close all; clear;
 addpath(genpath([ pwd '\..\' ]));
 im = load_untouch_nii('..\mri_images\high_snr_registered.nii');
-sigmaNoise = 40;
-sigmaBlur = 5;
-[originalIm, hr, lr] = image_prep(im,sigmaNoise, sigmaBlur,5); %getting a noised version of the original image
-
+sigmaNoise = 11;
+%sigmaBlur = 5;
+addpath(genpath([ pwd '\..\' ]));
+ground_truth_path = 'C:\mri_images\Data211117\Cohen_Regev\Study20171121_145132_394000\010\MR010001001.dcm';
+hr_path = 'C:\mri_images\Data211117\Cohen_Regev\Study20171121_145132_394000\018\MR018001001.dcm';
+lr_path = 'C:\mri_images\Data211117\Cohen_Regev\Study20171121_145132_394000\011\MR011001001.dcm';
+[hr, lr, originalIm] = real_data_prep(hr_path, lr_path, ground_truth_path);
 
 %% building the pyramid
 
 % Laplacian decomposition using 9/7 filters and 5 levels
 pfilt = '9/7';
-n = 7;
+n = 6;
 p_lr = lpd(lr, '9/7', n);
 p_hr = lpd(hr,'9/7',n);
+
 
 % using HR as base, we replace the bottom 4 levels with the LR pyramid levels
 pyr_merged = p_hr;
@@ -41,7 +45,7 @@ for i = 0:floor((n+1)/2)
     filename = sprintf('top 4 levels from HR, bm3d on first %.0f levels, 4 bottoms levels from LR.jpg',i+1);
     imwrite(xr, ['..\Data\bm3d_lp_images\' filename], 'jpg');
     if i==0
-         [PSNR, final_est] = BM3D(originalIm, xr, 40, 'np',0);
+         [PSNR, final_est] = BM3D(originalIm, xr, sigmaNoise, 'np',0);
          figure()
          imshow(final_est)
          title('BM3D on img. with denoised top level');
@@ -68,22 +72,22 @@ end
 %% LR Pyramid, top level from HR, BM3D on final product
 
 tmp_pyr = p_lr;
-tmp_pyr{8} = p_hr{8};
-[~, top_level_bm3d] = BM3D(originalIm, tmp_pyr{8}, 40, 'np',0);
-tmp_pyr{8} = top_level_bm3d;
-[~, top_level_bm3d] = BM3DTweaked(originalIm, tmp_pyr{8},single(p_lr{8}), 40, 'np',0);
+tmp_pyr{n+1} = p_hr{n+1};
+[~, top_level_bm3d] = BM3D(originalIm, tmp_pyr{n+1}, sigmaNoise, 'np',0);
+tmp_pyr{n+1} = top_level_bm3d;
+[~, top_level_bm3d] = BM3DTweaked(originalIm, tmp_pyr{n+1},single(p_lr{n+1}), sigmaNoise, 'np',0);
 % tmp_pyr{7} = p_hr{7};
 % [~, scnd_level_bm3d] = BM3D(originalIm, tmp_pyr{7}, 70, 'np',0);
 xr = lpr(tmp_pyr, pfilt);
 psnr(xr,originalIm)
 tmp_pyr2 = tmp_pyr;
-tmp_pyr2{8} = top_level_bm3d;
+tmp_pyr2{n+1} = top_level_bm3d;
 xr2 = lpr(tmp_pyr2, pfilt);
 psnr(xr2,originalIm)
 
-[psnr_final, final_est] = BM3D(originalIm, xr, 40, 'np',0);
+[psnr_final, final_est] = BM3D(originalIm, xr, sigmaNoise, 'np',0);
 % [psnr_denoised,denoised_im] = BM3D(originalIm, hr, 40, 'np',0);
-[psnr_denoised,denoised_im] = BM3DTweaked(originalIm, hr,single(lr), 40, 'np',0);
+[psnr_denoised,denoised_im] = BM3DTweaked(originalIm, hr,single(lr), sigmaNoise, 'np',0);
 [~,rect] = imcrop(originalIm);
 figure()
 subplot(2,2,1)

@@ -538,6 +538,7 @@ void bm3d_2nd_step(
 ,   fftwf_plan *  plan_2d_for_1
 ,   fftwf_plan *  plan_2d_for_2
 ,   fftwf_plan *  plan_2d_inv
+,   vector<float> const& lr_img // ADDED 2/1/2018
 ){
     //! Estimatation of sigma on each channel
     vector<float> sigma_table(chnls);
@@ -575,6 +576,31 @@ void bm3d_2nd_step(
     //! Precompute Bloc-Matching
     vector<vector<unsigned> > patch_table;
     precompute_BM(patch_table, img_basic, width, height, kWien, NWien, nWien, pWien, tauMatch);
+	
+	
+	//// ADDED 2/1/2018
+	vector<float> psnr_table;
+	vector<vector<unsigned> > HR_patch_table;
+    precompute_BM(HR_patch_table, img_basic, width, height, kWien, NWien, nWien, pWien, tauMatch, &psnr_table);
+	vector<vector<unsigned> > LR_patch_table;
+    precompute_BM(LR_patch_table, lr_img, width, height, kWien, NWien, nWien, pWien, tauMatch, &psnr_table);
+	threshold = 6; //THIS IS A PLACEHOLDER
+	
+	for(int i=0; i<HR_patch_table.size(); i++){
+	// if the patch psnr is higher than threshold, for this reference block group together the COORDINATES from HR_patch_table (the actual block are taken from the HR image)
+		if (psnr_table[i] > threshold){
+			for(int k=0; k<HR_patch_table[i].size(); k++){
+				patch_table[i][k] = HR_patch_table[i][k]
+			}
+		}
+		// if the patch psnr is higher than threshold, for this reference block group together the COORDINATES from LR_patch_table (the actual block are taken from the HR image)
+		else{
+			for(int k=0; k<HR_patch_table[i].size(); k++){
+				patch_table[i][k] = LR_patch_table[i][k]
+			}
+		}			
+	}
+	//// END OF ADDED 2/1/2018
 
     //! Preprocessing of Bior table
     vector<float> lpd, hpd, lpr, hpr;
@@ -1211,7 +1237,13 @@ void precompute_BM(
 ,   const unsigned nHW
 ,   const unsigned pHW
 ,   const float    tauMatch
+,	vector<float> psnr_table  ////// I added 2/1
+,   const vector<float> &gt_img ////// I added 2/1
 ){
+	// added 2/1/2018
+	vector<float> &HR_patch
+	vector<float> &GT_patch
+	// end of added 2/1/2018
 
     //! Declarations
     const unsigned Ns = 2 * nHW + 1;
@@ -1365,7 +1397,30 @@ void precompute_BM(
     		//out<<col<<',';
     }
     out_im << std::endl;
+	
+	////////////////////////////////////////////////
+	////////////// ADDED 2/1/2018 /////////////////
+	////////////////////////////////////////////////
+	for(int i=0; i< patch_table.size(); i++){
+		init_k = i
+		for(int l=0; l<patch_height; l++){
+			for(int k=init_k; k< init_k+patch_width; k++){
+				HR_patch = &img[k]
+				GT_patch = &gt_img[k]
+			}
+			init_k += width //width = image width
+		}
+		compute_psnr(GT_patch, HR_patch, &psnr_table[i], &rmse);
+		if(HR_psnr_table[i] != EXIT_SUCCESS || LR_psnr_table[i] != EXIT_SUCCESS)
+			return EXIT_FAILURE;
+		
+		HR_patch.clear();
+		GT_patch.clear();
+	}
 
+	////////////////////////////////////////////////
+	////////////// END OF ADDED 2/1/2018 ///////////
+	////////////////////////////////////////////////
 
 }
 
